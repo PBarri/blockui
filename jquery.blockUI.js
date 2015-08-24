@@ -27,10 +27,15 @@
 		var ie6  = /MSIE 6.0/.test(navigator.userAgent) && ! /MSIE 8.0/.test(navigator.userAgent);
 		var mode = document.documentMode || 0;
 		var setExpr = $.isFunction( document.createElement('div').style.setExpression );
+		
+		// global variable
+		var blocked = false;
 
 		// global $ methods for blocking/unblocking the entire page
 		$.blockUI   = function(opts) { install(window, opts); };
 		$.unblockUI = function(opts) { remove(window, opts); };
+		
+		$.isBlocked = function() { return blocked; };
 
 		// convenience method for quick growl-like notifications  (http://www.google.com/search?q=growl)
 		$.growlUI = function(title, message, timeout, onClose) {
@@ -451,6 +456,8 @@
 				}, opts.timeout);
 				$(el).data('blockUI.timeout', to);
 			}
+			
+			blocked = true;
 		}
 
 		// remove the block
@@ -498,6 +505,8 @@
 			}
 			else
 				reset(els, data, opts, el);
+				
+			blocked = false;
 		}
 
 		// move blocking element back into the DOM where it started
