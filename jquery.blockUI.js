@@ -27,15 +27,13 @@
 		var ie6  = /MSIE 6.0/.test(navigator.userAgent) && ! /MSIE 8.0/.test(navigator.userAgent);
 		var mode = document.documentMode || 0;
 		var setExpr = $.isFunction( document.createElement('div').style.setExpression );
-		
-		// global variable
-		var blocked = false;
 
 		// global $ methods for blocking/unblocking the entire page
 		$.blockUI   = function(opts) { install(window, opts); };
 		$.unblockUI = function(opts) { remove(window, opts); };
 		
-		$.isBlocked = function() { return blocked; };
+		// global $ method for checking if the page is blocked
+		$.isUIBlocked = function() { checkBlocked(window); };
 
 		// convenience method for quick growl-like notifications  (http://www.google.com/search?q=growl)
 		$.growlUI = function(title, message, timeout, onClose) {
@@ -75,6 +73,12 @@
 				$('.blockMsg').fadeOut(1000);
 			});
 			// End konapun additions
+		};
+
+		// plugin method for check if an element is blocked
+		$.fn.isUIBlocked = function() {
+			var $el = $(this);
+			return checkBlocked($el);
 		};
 
 		// plugin method for blocking element content
@@ -456,8 +460,6 @@
 				}, opts.timeout);
 				$(el).data('blockUI.timeout', to);
 			}
-			
-			blocked = true;
 		}
 
 		// remove the block
@@ -505,9 +507,17 @@
 			}
 			else
 				reset(els, data, opts, el);
-				
-			blocked = false;
 		}
+		
+		// check if an element is blocked
+		function checkBlocked(el) {
+			$el = $(el)
+			if($el.data('blockUI.isBlocked')) {
+				return true;
+			} else {
+				return false;
+			}
+		};
 
 		// move blocking element back into the DOM where it started
 		function reset(els,data,opts,el) {
